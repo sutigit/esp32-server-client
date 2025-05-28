@@ -1,10 +1,8 @@
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
 
-const serverIP = "192.168.0.112" // add server ip address here
-const serverPort = "3000"; // add server port here
-
-
-export const serverURL = `http://${serverIP}:${serverPort}`;
+export const serverURL = `http://${process.env.SERVER_IP}:${process.env.SERVER_PORT}`
 
 export const blinkPin = async (pin) => {
     try {
