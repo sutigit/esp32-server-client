@@ -1,5 +1,5 @@
 import { stdin as input } from "node:process";
-import { send } from "./send.js";
+import { blinkPin } from "./controls.js";
 
 if (!input.isTTY) {
   console.error("stdin is not a TTY. This script must be run in a terminal.");
@@ -15,7 +15,7 @@ console.log('Press "b" for blink or for "q" quits');
 input.on("data", async (key) => {
   if (key === "b") {
     
-    const res = await send(0);
+    const res = await blinkPin(0);
 
     if (res.status === 200) console.log("blink!");
     
