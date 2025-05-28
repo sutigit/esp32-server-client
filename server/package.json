@@ -1,0 +1,11 @@
+{
+  "name": "esp32-server",
+  "version": "1.0.0",
+  "description": "Server to works as a bridge for between client controllers and esp32 ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
