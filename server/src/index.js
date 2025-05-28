@@ -8,6 +8,6 @@ app.use(express.json());
 
 app.use('/blink', blinkRoute)
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server listening at port ${port}`);
 });
