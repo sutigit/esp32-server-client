@@ -1,11 +1,16 @@
 {
   "name": "esp32-server",
   "version": "1.0.0",
-  "description": "Server to works as a bridge for between client controllers and esp32 ",
+  "description": "Server that works as a bridge between client controllers and esp32 ",
+  "type": "module",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "sutigit",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }
