@@ -15,9 +15,10 @@ console.log('Press "b" for blink or for "q" quits');
 input.on("data", async (key) => {
   if (key === "b") {
     
-    const res = await blinkPin(0);
+    const pin = 12; // Add you pin number here
+    const res = await blinkPin(pin);
 
-    if (res.status === 200) console.log("blink!");
+    if (res?.status === 200) console.log("blink!");
     
 
   } else if (key === "q") {
