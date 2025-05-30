@@ -1,5 +1,7 @@
 import { stdin as input } from "node:process";
 import { blinkPin } from "./controls.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 if (!input.isTTY) {
   console.error("stdin is not a TTY. This script must be run in a terminal.");
@@ -15,7 +17,7 @@ console.log('Press "b" for blink or for "q" quits');
 input.on("data", async (key) => {
   if (key === "b") {
     
-    const pin = 12; // Add you pin number here
+    const pin = parseInt(process.env.PIN_NUM);
     const res = await blinkPin(pin);
 
     if (res?.status === 200) console.log("blink!");
