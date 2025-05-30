@@ -1,8 +1,10 @@
 import express from 'express';
 import blinkRoute from './routes/blink.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
-const port = 3000;
+const port = process.env.SERVER_PORT;
 
 app.use(express.json());
 
