@@ -24,7 +24,6 @@ input.on("data", async (key) => {
       break;
 
     case "t":
-      console.log("Testing connection...");
       await testConnection();
       break;
 

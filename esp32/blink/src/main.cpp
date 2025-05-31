@@ -5,14 +5,6 @@
 
 WebServer server(80); // Port 80
 
-const char *ssid = "sutilan";
-const char *password = "leppakerttu";
-
-const int ledPins[] = {
-    13, 14, 15, 18, 19, 25, 26, 27, 32, 33 // safe led pins for output
-};
-const int numPins = sizeof(ledPins) / sizeof(ledPins[0]);
-
 void handleRoot() {
   Serial.println("Hello from esp32");
   server.send(200);
@@ -40,6 +32,9 @@ void handleNotFound()
 
 bool connectToWiFI()
 {
+  const char *ssid = "sutilan";
+  const char *password = "leppakerttu";
+
   /**
    * The STA mode is used to connect the ESP32 to a Wi-Fi network,
    * provided by an Access Point.
@@ -76,12 +71,13 @@ bool connectToWiFI()
   return true;
 }
 
-void setup()
-{
-  Serial.begin(460800);
-  delay(1000);
+void initLedPins() {
 
-  if (connectToWiFI()) {
+    const int ledPins[] = {
+        13, 14, 15, 18, 19, 25, 26, 27, 32, 33 // safe led pins for output
+    };
+    const int numPins = sizeof(ledPins) / sizeof(ledPins[0]);
+
     Serial.println("\nInitializing LED pins");
     for (int i = 0; i < numPins; i++)
     {
@@ -92,13 +88,28 @@ void setup()
     }
   
     Serial.println("\nLED pins configured succesfully");
-    
-    server.on("/", handleRoot);
+}
+
+void initWebServer() {
+    server.on("/", HTTP_ANY, handleRoot);
     server.on("/blink", handleBlink);
     server.onNotFound(handleNotFound);
   
     server.begin();
     Serial.println("\nHTTP server started");
+}
+
+void setup()
+{
+  Serial.begin(460800);
+  delay(1000);
+
+  if (connectToWiFI()) {
+    
+    initLedPins();
+    initWebServer();
+
+    delay(500);
   }
 }
 
