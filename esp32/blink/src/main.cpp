@@ -1,32 +1,16 @@
 #define WIFI_DEBUG 1
+#define NUM_LEDS 10
 
 #include <WiFi.h>
 #include <WiFiUdp.h>
-// #include <WebServer.h>
 
-// WebServer server(80); // Port 80
 WiFiUDP udp;
 const unsigned int localUdpPort = 4210; // Port ESP32 listens on
-char incomingPacket[255]; // buffer for incoming packets
+char incomingPacket[255];               // buffer for incoming packets
 
-// void handleRoot() {
-//   Serial.println("Root hit");
-//   server.send(200);
-// }
-
-// void handleBlink()
-// {
-//   if (server.hasArg("p"))
-//   {
-//     int pin = server.arg("p").toInt();
-//     Serial.println(pin);
-//     server.send(200);
-//   }
-//   else
-//   {
-//     server.send(400);
-//   }
-// }
+const int ledPins[NUM_LEDS] = {13, 14, 15, 18, 19, 25, 26, 27, 32, 33}; // safe led pins for output
+bool ledOn[NUM_LEDS] = {false};
+unsigned long ledOffTime[NUM_LEDS] = {0};
 
 void handleNotFound()
 {
@@ -46,27 +30,28 @@ bool connectToWiFI()
   WiFi.begin(ssid, password);
   long waitedTime = millis();
 
-  #if WIFI_DEBUG
-    Serial.println("\nConnecting");
-  #endif
+#if WIFI_DEBUG
+  Serial.println("\nConnecting");
+#endif
 
   while (WiFi.status() != WL_CONNECTED)
   {
     Serial.print(".");
     delay(200);
 
-    if (millis() - waitedTime >= 10000) {
-      #if WIFI_DEBUG
-            Serial.println("WIFI connection timeout");
-      #endif
+    if (millis() - waitedTime >= 10000)
+    {
+#if WIFI_DEBUG
+      Serial.println("WIFI connection timeout");
+#endif
 
       return false;
     }
   }
 
-  #if WIFI_DEBUG
-    Serial.printf("\nWiFi Connected to: %s\n", ssid);
-  #endif
+#if WIFI_DEBUG
+  Serial.printf("\nWiFi Connected to: %s\n", ssid);
+#endif
 
   Serial.println("\nConnected to the WiFi network");
   Serial.print("Local ESP32 IP: ");
@@ -74,54 +59,69 @@ bool connectToWiFI()
   return true;
 }
 
-void initLedPins() {
+void initLedPins()
+{
+  Serial.println("\nInitializing LED pins");
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    Serial.println(ledPins[i]);
+    pinMode(ledPins[i], OUTPUT);
+    digitalWrite(ledPins[i], LOW);
+    delay(200);
+  }
 
-    const int ledPins[] = {
-        13, 14, 15, 18, 19, 25, 26, 27, 32, 33 // safe led pins for output
-    };
-    const int numPins = sizeof(ledPins) / sizeof(ledPins[0]);
-
-    Serial.println("\nInitializing LED pins");
-    for (int i = 0; i < numPins; i++)
-    {
-      Serial.println(ledPins[i]);
-      pinMode(ledPins[i], OUTPUT);
-      digitalWrite(ledPins[i], LOW);
-      delay(200);
-    }
-  
-    Serial.println("\nLED pins configured succesfully");
+  Serial.println("\nLED pins configured succesfully");
 }
 
-// void initWebServer() {
-//     server.on("/", handleRoot);
-//     server.on("/blink", handleBlink);
-//     server.onNotFound(handleNotFound);
-  
-//     server.begin();
-//     Serial.println("\nHTTP server started");
-// }
-
-void initUDP() {
+void initUDP()
+{
   udp.begin(localUdpPort);
   Serial.printf("UDP listening on port %d\n", localUdpPort);
 }
 
-void handleUDP() {
+void handlePinOn()
+{
   int packetSize = udp.parsePacket();
-    if (packetSize) {
-      // Read packet
-      int len = udp.read(incomingPacket, 255);
-      if (len > 0) {
-        incomingPacket[len] = 0; // Null-terminate
-      }
 
-      Serial.printf("UDP packet received: '%s'\n", incomingPacket);
-
-      int pin = atoi(incomingPacket);
-      digitalWrite(pin, HIGH);
-      delay(200);
+  if (packetSize)
+  {
+    // Read packet
+    int len = udp.read(incomingPacket, 255);
+    if (len > 0)
+    {
+      incomingPacket[len] = 0; // Null-terminate
     }
+
+    Serial.printf("UDP packet received: '%s'\n", incomingPacket);
+
+    int pin = atoi(incomingPacket);
+
+    // This pattern is for handling asynchronosity in lighting the LEDs
+    for (int i = 0; i < NUM_LEDS; i++)
+    {
+      if (ledPins[i] == pin)
+      {
+        digitalWrite(pin, HIGH);
+        ledOn[i] = true;
+        ledOffTime[i] = millis() + 100; // 200 ms later turn off
+        break;
+      }
+    }
+  }
+}
+
+void handlePinOff()
+{
+  // This pattern is for handling asynchronosity in lighting the LEDs
+  unsigned long now = millis();
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    if (ledOn[i] && now > ledOffTime[i])
+    {
+      digitalWrite(ledPins[i], LOW);
+      ledOn[i] = false;
+    }
+  }
 }
 
 void setup()
@@ -129,10 +129,10 @@ void setup()
   Serial.begin(460800);
   delay(1000);
 
-  if (connectToWiFI()) {
-    
+  if (connectToWiFI())
+  {
+
     initLedPins();
-    // initWebServer();
     initUDP();
 
     delay(500);
@@ -141,6 +141,6 @@ void setup()
 
 void loop()
 {
-  // server.handleClient();
-  handleUDP();
+  handlePinOn();
+  handlePinOff();
 }
