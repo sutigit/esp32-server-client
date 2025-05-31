@@ -1,5 +1,4 @@
 import express from "express";
-import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -10,8 +9,9 @@ router.get("/", async (req, res) => {
   console.log("Testing ESP32 connection...");
 
   try {
-    const endpoint = `http://${process.env.ESP32_IP}`;
-    const esp32res = await axios.get(endpoint);
+
+    // logic
+
     res.sendStatus(esp32res.status);
 
   } catch (error) {
