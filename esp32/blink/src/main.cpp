@@ -1,28 +1,32 @@
 #define WIFI_DEBUG 1
 
 #include <WiFi.h>
-#include <WebServer.h>
+#include <WiFiUdp.h>
+// #include <WebServer.h>
 
-WebServer server(80); // Port 80
+// WebServer server(80); // Port 80
+WiFiUDP udp;
+const unsigned int localUdpPort = 4210; // Port ESP32 listens on
+char incomingPacket[255]; // buffer for incoming packets
 
-void handleRoot() {
-  Serial.println("Root hit");
-  server.send(200);
-}
+// void handleRoot() {
+//   Serial.println("Root hit");
+//   server.send(200);
+// }
 
-void handleBlink()
-{
-  if (server.hasArg("p"))
-  {
-    int pin = server.arg("p").toInt();
-    Serial.println(pin);
-    server.send(200);
-  }
-  else
-  {
-    server.send(400);
-  }
-}
+// void handleBlink()
+// {
+//   if (server.hasArg("p"))
+//   {
+//     int pin = server.arg("p").toInt();
+//     Serial.println(pin);
+//     server.send(200);
+//   }
+//   else
+//   {
+//     server.send(400);
+//   }
+// }
 
 void handleNotFound()
 {
@@ -89,13 +93,35 @@ void initLedPins() {
     Serial.println("\nLED pins configured succesfully");
 }
 
-void initWebServer() {
-    server.on("/", handleRoot);
-    server.on("/blink", handleBlink);
-    server.onNotFound(handleNotFound);
+// void initWebServer() {
+//     server.on("/", handleRoot);
+//     server.on("/blink", handleBlink);
+//     server.onNotFound(handleNotFound);
   
-    server.begin();
-    Serial.println("\nHTTP server started");
+//     server.begin();
+//     Serial.println("\nHTTP server started");
+// }
+
+void initUDP() {
+  udp.begin(localUdpPort);
+  Serial.printf("UDP listening on port %d\n", localUdpPort);
+}
+
+void handleUDP() {
+  int packetSize = udp.parsePacket();
+    if (packetSize) {
+      // Read packet
+      int len = udp.read(incomingPacket, 255);
+      if (len > 0) {
+        incomingPacket[len] = 0; // Null-terminate
+      }
+
+      Serial.printf("UDP packet received: '%s'\n", incomingPacket);
+
+      int pin = atoi(incomingPacket);
+      digitalWrite(pin, HIGH);
+      delay(200);
+    }
 }
 
 void setup()
@@ -106,7 +132,8 @@ void setup()
   if (connectToWiFI()) {
     
     initLedPins();
-    initWebServer();
+    // initWebServer();
+    initUDP();
 
     delay(500);
   }
@@ -114,5 +141,6 @@ void setup()
 
 void loop()
 {
-  server.handleClient();
+  // server.handleClient();
+  handleUDP();
 }
