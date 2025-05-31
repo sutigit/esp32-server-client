@@ -11,13 +11,12 @@ router.get("/", async (req, res) => {
 
   try {
     const endpoint = `http://${process.env.ESP32_IP}`;
-    const res = await axios.get(endpoint);
-
-    console.log("Response from ESP32:", res.data);
+    const esp32res = await axios.get(endpoint);
+    res.sendStatus(esp32res.status);
 
   } catch (error) {
     console.error("Error forwarding blink request:", error.message);
-    return res.status(500).send("Error forwarding blink request");
+    return res.sendStatus(500);
   }
 });
 

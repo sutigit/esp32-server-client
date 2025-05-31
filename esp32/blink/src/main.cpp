@@ -6,13 +6,12 @@
 WebServer server(80); // Port 80
 
 void handleRoot() {
-  Serial.println("Hello from esp32");
+  Serial.println("Root hit");
   server.send(200);
 }
 
 void handleBlink()
 {
-  Serial.println("received something...");
   if (server.hasArg("p"))
   {
     int pin = server.arg("p").toInt();
@@ -92,7 +91,7 @@ void initLedPins() {
 
 void initWebServer() {
     server.on("/", HTTP_ANY, handleRoot);
-    server.on("/blink", handleBlink);
+    server.on("/blink", HTTP_POST, handleBlink);
     server.onNotFound(handleNotFound);
   
     server.begin();
