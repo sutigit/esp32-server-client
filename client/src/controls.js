@@ -5,10 +5,10 @@ dotenv.config();
 export const serverURL = `http://${process.env.SERVER_IP}:${process.env.SERVER_PORT}`;
 
 export const blinkPin = async (pin) => {
-  const esp32SafePins = [14, 25, 26, 27, 32, 33, 34, 35, 37, 38, 39];
+  const esp32SafePins = [13,14,15,18,19,25,26,27,32,33];
 
   if (!esp32SafePins.includes(pin)) {
-    console.error(`Pin ${pin} is not a safe pin for blinking.`);
+    console.error(`Pin ${pin} does not exist or is not a safe pin for blinking.`);
     return;
   }
 

@@ -6,7 +6,9 @@ WebServer server(80); // Port 80
 const char* ssid = "sutilan";
 const char* password = "leppakerttu";
 
-const int ledPins[11] = {14,25,26,27,32,33,34,35,37,38,39};
+const int ledPins[] = {
+  13,14,15,18,19,25,26,27,32,33 // safe led pins for output
+};
 const int numPins = sizeof(ledPins) / sizeof(ledPins[0]);
 
 void blink() {
@@ -17,7 +19,11 @@ void setup(){
     Serial.begin(460800);
     delay(1000);
 
-    WiFi.mode(WIFI_STA); // The STA mode is used to connect the ESP32 to a Wi-Fi network, provided by an Access Point.
+    /**
+     * The STA mode is used to connect the ESP32 to a Wi-Fi network, 
+     * provided by an Access Point.
+     */
+    WiFi.mode(WIFI_STA); 
     WiFi.begin(ssid, password);
     Serial.println("\nConnecting");
 
@@ -32,10 +38,14 @@ void setup(){
 
     Serial.println("\nInitializing LED pins");
     for (int i = 0; i < numPins; i++) {
+      Serial.println(ledPins[i]);
       pinMode(ledPins[i], OUTPUT);
+      delay(500);
     }
+    
+    Serial.println("\nLED pins configured succesfully");
 
-    server.on("/", blink);
+    server.on("/blink", blink);
 
     server.begin();
     Serial.println("\nHTTP server started");
