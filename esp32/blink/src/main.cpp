@@ -90,8 +90,8 @@ void initLedPins() {
 }
 
 void initWebServer() {
-    server.on("/", HTTP_ANY, handleRoot);
-    server.on("/blink", HTTP_POST, handleBlink);
+    server.on("/", handleRoot);
+    server.on("/blink", handleBlink);
     server.onNotFound(handleNotFound);
   
     server.begin();
